@@ -4,7 +4,7 @@ A Streamlit-based application that automatically generates technical interview q
 
 Live Demo
 
-Try it out here:https://share.streamlit.io//mock-test-generator/main/app.py
+Try it out here: https://mock-test-generator-zjjvbh2pb5rek3utsfr9ub.streamlit.app/
 
 Features
 
@@ -52,9 +52,4 @@ On https://share.streamlit.io, create a new app from this repo, main branch, app
 
 Add GOOGLE_API_KEY as a Secret in the app settings.
 
-Deploy and share the URL!
-
-License
-
-MIT © Trishant Dudi
 
