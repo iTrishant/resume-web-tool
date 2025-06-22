@@ -1,0 +1,4 @@
+flask
+PyMuPDF
+python-dotenv
+google-generativeai
