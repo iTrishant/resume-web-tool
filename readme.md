@@ -12,15 +12,25 @@ Together they power a mock-interview pipeline:
 Endpoints:
 
 Matcher service (port 8001)
+
   GET    /           returns {"status":"matcher service is running"}
+
   POST   /resume     upload form-file “file” → parsed resume JSON
+
   POST   /jd         upload form-file “file” → parsed JD JSON
+
   POST   /match      JSON {resume_json, jd_json} → match result JSON
 
 Question generator (port 8002)
+
   GET    /           returns {"status":"matcher service is running"}
+
   POST   /generate   JSON {resume_json, jd_json} → {"questions": [...]}
 
+-end
+
+
+OLD README->
 
 Mock Test Generator
 
