@@ -141,20 +141,24 @@ if st.button("Run Match + Generate Questions"):
         st.write(f"**Match Percentage:** {match_pct}")
 
         with st.spinner("🧠 Generating interview questions..."):
-            raw = generate_questions(resume_text, jd)
             try:
+                raw = generate_questions(resume_text, jd)
+                if raw.startswith("```json"):
+                    raw = raw[7:-3].strip()
                 data = json.loads(raw)
             except:
                 st.error("❌ Failed to parse LLM response.")
                 st.text(raw)
                 st.stop()
+                return
         st.success("🎯 Generated Interview Questions")
-        for i, q in enumerate(data["open_questions"], 1):
-            st.write(f"**Q{i}:** {q}")
+        st.json(data)
+        # for i, q in enumerate(data["open_questions"], 1):
+        #     st.write(f"**Q{i}:** {q}")
 
-        st.write("**Q5: MCQs**")
-        st.write(data["mcq"]["question"])
+        # st.write("**Q5: MCQs**")
+        # st.write(data["mcq"]["question"])
 
-        for sq in data["mcq"]["subquestions"]:
-            st.write(f"{sq['q']}")
-            st.write("  " + "  |  ".join(sq["options"]))
+        # for sq in data["mcq"]["subquestions"]:
+        #     st.write(f"{sq['q']}")
+        #     st.write("  " + "  |  ".join(sq["options"]))
