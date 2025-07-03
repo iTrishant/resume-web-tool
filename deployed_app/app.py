@@ -118,7 +118,7 @@ Requirements:
    - Q5 is the root question with subparts from a to f or g, each being an independent MCQ question
 """
     response = model.generate_content(prompt)
-    return responses.text.strip()
+    return response.text.strip()
     
 # Streamlit UI
 st.set_page_config(page_title="Gemini ATS & Interview Generator", layout="centered")
