@@ -150,7 +150,6 @@ if st.button("Run Match + Generate Questions"):
                 st.error("❌ Failed to parse LLM response.")
                 st.text(raw)
                 st.stop()
-                return
         st.success("🎯 Generated Interview Questions")
         st.json(data)
         # for i, q in enumerate(data["open_questions"], 1):
