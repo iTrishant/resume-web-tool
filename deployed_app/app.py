@@ -74,30 +74,30 @@ Each MCQ sub-question should have:
 
 Output format (STRICT JSON):
 
-{
+{{
   "open_questions": [
     "Open Q1",
     "Open Q2",
     "Open Q3",
     "Open Q4"
   ],
-  "mcq": {
+  "mcq": {{
     "question": "Main MCQ category or context (e.g. 'Based on your GloVe model...')",
     "subquestions": [
-      {
+      {{
         "q": "i. What is ...?",
         "options": ["a. ...", "b. ...", "c. ...", "d. ...", "e. ..."]
-      },
-      {
+      }},
+      {{
         "q": "ii. How ...?",
         "options": ["a. ...", "b. ...", "c. ...", "d. ...", "e. ..."]
-      }
-      ...
+      }}
     ]
-  }
-}
+  }}
+}}
 
-Only return this JSON. Do not add any extra commentary or text. And do not return answers.
+
+Only return this JSON and do not add any extra commentary or text. And do not return answers.
 
 — Technical Highlights:
 {highlights_str}
