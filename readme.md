@@ -38,7 +38,7 @@ A Streamlit-based application that automatically generates technical interview q
 
 Live Demo
 
-Try it out here: https://mock-test-generator-zjjvbh2pb5rek3utsfr9ub.streamlit.app/
+Try it out here: [https://mock-test-generator-zjjvbh2pb5rek3utsfr9ub.streamlit.app/](https://mock-test-generator-jmbfkvdfz7wfc22wy9a5zc.streamlit.app/)
 
 Features
 
