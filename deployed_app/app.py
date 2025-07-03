@@ -118,8 +118,7 @@ Requirements:
    - Q5 is the root question with subparts from a to f or g, each being an independent MCQ question
 """
     response = model.generate_content(prompt)
-    lines = [line.strip() for line in response.text.splitlines() if line.strip()]
-    return lines
+    return responses.text.strip()
     
 # Streamlit UI
 st.set_page_config(page_title="Gemini ATS & Interview Generator", layout="centered")
@@ -142,7 +141,7 @@ if st.button("Run Match + Generate Questions"):
         st.write(f"**Match Percentage:** {match_pct}")
 
         with st.spinner("🧠 Generating interview questions..."):
-            raw = model.generate_content(prompt).text.strip()
+            raw = generate_questions(resume_text, jd)
             try:
                 data = json.loads(raw)
             except:
