@@ -37,7 +37,7 @@ A Streamlit-based application that automatically generates technical interview q
 
 ## Live Demo
 
-### Try it out here: [https://mock-test-generator-zjjvbh2pb5rek3utsfr9ub.streamlit.app/](https://mock-test-generator-jmbfkvdfz7wfc22wy9a5zc.streamlit.app/)
+### Try it out here: [[https://mock-test-generator-zjjvbh2pb5rek3utsfr9ub.streamlit.app/](https://mock-test-generator-jmbfkvdfz7wfc22wy9a5zc.streamlit.app/)](https://mock-test-generator-zumgvqpifghieuoka3r299.streamlit.app/)
 
 
 Resume–JD Matching: Calculates match percentage between candidate's resume and job description.
