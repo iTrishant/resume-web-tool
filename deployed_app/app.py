@@ -70,7 +70,6 @@ You are an expert technical interview coach. Given this resume and its highlight
 Each MCQ sub-question should have:
 - A question string
 - Exactly 5 labelled options ("a" to "e")
-- The correct answer (just the option letter)
 
 Output format (STRICT JSON):
 
