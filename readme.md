@@ -1,4 +1,4 @@
-Mock-Test-Generator
+# Mock-Test-Generator
 
 A two-service Flask micro-API for:
 1. Resume–JD Matcher
@@ -13,7 +13,7 @@ Endpoints:
 
 Matcher service (port 8001)
 
-  GET    /           returns {"status":"matcher service is running"}
+  GET    /           returns {"status": "matcher service is running"}
 
   POST   /resume     upload form-file “file” → parsed resume JSON
 
@@ -23,67 +23,28 @@ Matcher service (port 8001)
 
 Question generator (port 8002)
 
-  GET    /           returns {"status":"matcher service is running"}
+  GET    /           returns {"status": "matcher service is running"}
 
   POST   /generate   JSON {resume_json, jd_json} → {"questions": [...]}
 
 -end
 
 
-OLD README->
 
-Mock Test Generator
+# Deployed Mock Test Generator
 
 A Streamlit-based application that automatically generates technical interview questions and computes resume-to-job-description match percentage using Google Gemini (gemini-1.5-flash).
 
-Live Demo
+## Live Demo
 
-Try it out here: [https://mock-test-generator-zjjvbh2pb5rek3utsfr9ub.streamlit.app/](https://mock-test-generator-jmbfkvdfz7wfc22wy9a5zc.streamlit.app/)
+### Try it out here: [https://mock-test-generator-zjjvbh2pb5rek3utsfr9ub.streamlit.app/](https://mock-test-generator-jmbfkvdfz7wfc22wy9a5zc.streamlit.app/)
 
-Features
 
 Resume–JD Matching: Calculates match percentage between candidate's resume and job description.
 
 Question Generation: Produces 5 tailor-made technical interview questions (q1–q5) plus a multiple-choice question with subparts (a–g).
 
-Tech Stack
 
-Frontend: Streamlit
 
-LLM: Google Gemini via google-generativeai
-
-Resume Parsing: PyPDF2
-
-Deployment: Streamlit Community Cloud
-
-Installation & Setup
-
-Clone the repository:
-
-git clone https://github.com/iTrishant/mock-test-generator.git
-cd mock-test-generator
-
-Create a virtual environment and install dependencies:
-
-python -m venv .venv
-source .venv/bin/activate    # macOS/Linux
-.\.venv\Scripts\activate   # Windows
-pip install -r requirements.txt
-
-Add your Gemini API key:
-
-echo "GOOGLE_API_KEY=your_gemini_key_here" > .env
-
-Running Locally
-
-streamlit run app.py
-
-Deployment to Streamlit Community Cloud
-
-Push code to GitHub (see instructions above).
-
-On https://share.streamlit.io, create a new app from this repo, main branch, app.py file.
-
-Add GOOGLE_API_KEY as a Secret in the app settings.
 
 
