@@ -67,6 +67,38 @@ You are an expert technical interview coach. Given this resume and its highlight
 • 4 open-ended questions (for spoken answers)
 • 1 multiple-choice question with 6–7 sub-questions
 
+Each MCQ sub-question should have:
+- A question string
+- Exactly 5 labelled options ("a" to "e")
+- The correct answer (just the option letter)
+
+Output format (STRICT JSON):
+
+{
+  "open_questions": [
+    "Open Q1",
+    "Open Q2",
+    "Open Q3",
+    "Open Q4"
+  ],
+  "mcq": {
+    "question": "Main MCQ category or context (e.g. 'Based on your GloVe model...')",
+    "subquestions": [
+      {
+        "q": "i. What is ...?",
+        "options": ["a. ...", "b. ...", "c. ...", "d. ...", "e. ..."]
+      },
+      {
+        "q": "ii. How ...?",
+        "options": ["a. ...", "b. ...", "c. ...", "d. ...", "e. ..."]
+      }
+      ...
+    ]
+  }
+}
+
+Only return this JSON. Do not add any extra commentary or text. And do not return answers.
+
 — Technical Highlights:
 {highlights_str}
 
@@ -76,55 +108,19 @@ Full Resume:
 Job Description:
 {jd_text}
 
-**Important**:  
-• Return **only** a valid JSON array of 5 strings.  
-• Do not add any extra commentary or text.
 Requirements:
 1. Generate 4 open-ended technical questions referencing specific skills or projects.
 2. Generate 1 multiple-choice technical question (MCQ) based on a listed technical skill or project:
-   - Generate 6 or 7 questions based on technical highlight availability
-   - MCQ must be concept-testing or scenario-based.
-   - Provide exactly 5 labeled choices (A–E).
-   - Only one correct answer, clearly indicated in JSON.
+   - Generate 6 or 7 questions based on the technical highlight availability
+   - MCQs must be concept-testing or scenario-based.
+   - Provide exactly 5 labelled choices (A–E).
    - Do NOT include preference-based or soft-skill questions.
-   - Q5 is the root questions with subparts from a to f or g, each being an independent MCQ questions
-
-Return valid JSON in this format:
-Q1
-Q2
-Q3
-Q4
-Q5 
-i a b c d e
-ii a b c d e
-iii a b c d e
-iv a b c d e
-v a b c d e
-..
-Each on its own line, nothing else.
+   - Q5 is the root question with subparts from a to f or g, each being an independent MCQ question
 """
     response = model.generate_content(prompt)
     lines = [line.strip() for line in response.text.splitlines() if line.strip()]
     return lines
-    # raw = response.text.strip()
-    # try:
-    #     return json.loads(raw)
-    # except json.JSONDecodeError:
-    #     arr = re.search(r'"open_questions"\s*:\s*\[(.*?)\]', raw, re.DOTALL)
-    #     mcq_q = re.search(r'"question"\s*:\s*"(.*?)"', raw)
-    #     mcq_choices = re.search(r'"choices"\s*:\s*\[(.*?)\]', raw, re.DOTALL)
-    #     mcq_ans = re.search(r'"answer"\s*:\s*"(.*?)"', raw)
-    #     open_qs = json.loads(f"[{arr.group(1)}]") if arr else []
-    #     choices = json.loads(f"[{mcq_choices.group(1)}]") if mcq_choices else []
-    #     return {
-    #         "open_questions": open_qs,
-    #         "mcq": {
-    #             "question": mcq_q.group(1) if mcq_q else "",
-    #             "choices": choices,
-    #             "answer": mcq_ans.group(1) if mcq_ans else ""
-    #         }
-    #     }
-
+    
 # Streamlit UI
 st.set_page_config(page_title="Gemini ATS & Interview Generator", layout="centered")
 st.title("📋 Gemini‑Powered Quick ATS & Question Generator")
@@ -146,7 +142,20 @@ if st.button("Run Match + Generate Questions"):
         st.write(f"**Match Percentage:** {match_pct}")
 
         with st.spinner("🧠 Generating interview questions..."):
-            questions = generate_questions(resume_text, jd)
+            raw = model.generate_content(prompt).text.strip()
+            try:
+                data = json.loads(raw)
+            except:
+                st.error("❌ Failed to parse LLM response.")
+                st.text(raw)
+                st.stop()
         st.success("🎯 Generated Interview Questions")
-        for item in questions:
-            st.write(item)
+        for i, q in enumerate(data["open_questions"], 1):
+            st.write(f"**Q{i}:** {q}")
+
+        st.write("**Q5: MCQs**")
+        st.write(data["mcq"]["question"])
+
+        for sq in data["mcq"]["subquestions"]:
+            st.write(f"{sq['q']}")
+            st.write("  " + "  |  ".join(sq["options"]))
