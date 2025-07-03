@@ -16,7 +16,7 @@ A unified Flask API that powers resume–JD matching and technical interview que
 Returns:  
 ```json
 {
-  "status": "unified matcher + generator service running"
+  "status": "service running"
 }
 ```
 
