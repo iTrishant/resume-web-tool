@@ -1,33 +1,127 @@
 # Mock-Test-Generator
 
-A two-service Flask micro-API for:
-1. Resume–JD Matcher
-2. Technical Question Generator
+A unified Flask API that powers resume–JD matching and technical interview question generation using Google Gemini.
 
-Together they power a mock-interview pipeline:
-- parse PDF resumes and JDs into JSON
-- compute resume↔JD match score
-- generate tailored technical questions
+## Core Features
 
-Endpoints:
+- Parse PDF resumes and job descriptions into structured JSON
+- Compute resume ↔ JD match score with reasoning
+- Generate technical interview questions (open + MCQs) based on resume and JD
+- All endpoints are unified under a single service (port **8000**)
 
-Matcher service (port 8001)
+## Endpoints
 
-  GET    /           returns {"status": "matcher service is running"}
+### `GET /`  
+**Health check**  
+Returns:  
+```json
+{
+  "status": "unified matcher + generator service running"
+}
+```
 
-  POST   /resume     upload form-file “file” → parsed resume JSON
+---
 
-  POST   /jd         upload form-file “file” → parsed JD JSON
+### `POST /resume`  
+**Description:** Upload a resume PDF and receive structured JSON output.  
+**Input:**  
+- `multipart/form-data` with a file field named `"file"` (PDF resume)
 
-  POST   /match      JSON {resume_json, jd_json} → match result JSON
+**Response:**  
+```json
+{
+  "Full Name": "...",
+  "Email": "...",
+  "GitHub": "...",
+  "LinkedIn": "...",
+  "Employment Details": [...],
+  "Technical Skills": [...],
+  "Soft Skills": [...],
+  "Education": [...]
+}
+```
 
-Question generator (port 8002)
+---
 
-  GET    /           returns {"status": "matcher service is running"}
+### `POST /jd`  
+**Description:** Upload a job description PDF and receive structured JSON output.  
+**Input:**  
+- `multipart/form-data` with a file field named `"file"` (PDF JD)
 
-  POST   /generate   JSON {resume_json, jd_json} → {"questions": [...]}
+**Response:**  
+```json
+{
+  "Required Skills": [...],
+  "Required Experience": "...",
+  "Required Education": "..."
+}
+```
 
--end
+---
+
+### `POST /match`  
+**Description:** Compare resume and JD JSON to get a compatibility score and analysis.  
+**Input:**  
+```json
+{
+  "resume_json": { ... },
+  "jd_json": { ... }
+}
+```
+
+**Response:**  
+```json
+{
+  "score": 87,
+  "strengths": [...],
+  "gaps": [...]
+}
+```
+
+---
+
+### `POST /generate`  
+**Description:** Generate technical interview questions based on resume + JD.  
+**Input:**  
+```json
+{
+  "resume_json": { ... },
+  "jd_json": { ... }
+}
+```
+
+**Response:**  
+```json
+{
+  "open_questions": [
+    "Explain your experience with...",
+    "How would you approach...",
+    ...
+  ],
+  "mcq": {
+    "question": "Context-based category",
+    "subquestions": [
+      {
+        "q": "i. What is ...?",
+        "options": [
+          "a. ...", "b. ...", "c. ...", "d. ...", "e. ..."
+        ]
+      },
+      ...
+    ]
+  }
+}
+```
+
+## Folder Structure
+
+```
+unified_service/
+├── app.py
+├── matcher_utils.py
+├── generator_utils.py
+├── requirements.txt
+```
 
 
 
