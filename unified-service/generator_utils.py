@@ -26,18 +26,22 @@ def generate_questions(resume_json: dict, jd_json: dict, highlights: list[str]) 
     prompt = f"""
 You are an expert technical interview coach. Given this resume, highlights, and job description, generate:
 - 4 open-ended technical questions
-- 1 MCQ question with 6 sub-questions
-Each MCQ sub-question should have 5 options (a-e). Return as valid JSON.
+- MCQ section with 6 unique MCQ questions
+Each MCQ question should have 5 options (a-e). Return as valid JSON.
 
 Return format:
 {{
   "open_questions": ["Q1", "Q2", "Q3", "Q4"],
   "mcq": {{
-    "question": "Q5 base context",
-    "subquestions": [
-      {{"q": "i. question text", "options": ["a. opt", "b. opt", "c. opt", "d. opt", "e. opt"]}},
+    {{
+        "q1": "i. What is ...?",
+        "options": ["a. ...", "b. ...", "c. ...", "d. ...", "e. ..."]
+      }},
+      {{
+        "q2": "ii. How ...?",
+        "options": ["a. ...", "b. ...", "c. ...", "d. ...", "e. ..."]
+      }}
       ...
-    ]
   }}
 }}
 
