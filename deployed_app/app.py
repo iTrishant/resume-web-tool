@@ -108,7 +108,7 @@ Job Description:
 Requirements:
 1. Generate 4 open-ended technical questions referencing specific skills or projects.
 2. Generate 1 multiple-choice technical question (MCQ) based on a listed technical skill or project:
-   - Generate 6 or 7 questions based on the technical highlight availability, each must be unique and not of the same topic
+   - Generate 6 questions based on the technical highlight availability, each must be unique and not of the same topic
    - MCQs must be concept-testing or scenario-based.
    - Provide exactly 5 labelled choices (A–E).
    - Do NOT include preference-based or soft-skill questions.
