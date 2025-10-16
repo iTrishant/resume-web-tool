@@ -3,9 +3,55 @@ import json
 import re
 import google.generativeai as genai
 from typing import Dict, List, Optional
+import random
+import time
 
-# Configure Gemini (same as your deployed app)
-genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+# Multi-key rotation for rate limiting
+API_KEYS = [
+    os.getenv("GEMINI_API_KEY_1"),
+    os.getenv("GEMINI_API_KEY_2"), 
+    os.getenv("GEMINI_API_KEY_3"),
+    os.getenv("GEMINI_API_KEY_4"),
+    os.getenv("GEMINI_API_KEY_5")
+]
+
+# Filter out None keys
+API_KEYS = [key for key in API_KEYS if key is not None]
+
+if not API_KEYS:
+    raise ValueError("No Gemini API keys found! Set GEMINI_API_KEY_1 through GEMINI_API_KEY_5")
+
+# Rate limiting tracking
+key_usage = {i: {"requests": 0, "last_reset": time.time()} for i in range(len(API_KEYS))}
+RATE_LIMIT = 15  # requests per minute
+RESET_INTERVAL = 60  # seconds
+
+def get_available_key():
+    """Get an available API key with rate limiting"""
+    current_time = time.time()
+    
+    # Reset counters if needed
+    for i, usage in key_usage.items():
+        if current_time - usage["last_reset"] >= RESET_INTERVAL:
+            usage["requests"] = 0
+            usage["last_reset"] = current_time
+    
+    # Find available key
+    for i, usage in key_usage.items():
+        if usage["requests"] < RATE_LIMIT:
+            usage["requests"] += 1
+            return API_KEYS[i]
+    
+    # If all keys are rate limited, wait and retry
+    print("All API keys rate limited, waiting...")
+    time.sleep(5)
+    return get_available_key()
+
+def configure_gemini():
+    """Configure Gemini with current available key"""
+    key = get_available_key()
+    genai.configure(api_key=key)
+    return genai.GenerativeModel('gemini-1.5-flash')
 
 # Keywords from your deployed app
 TECH_KEYWORDS = {
@@ -57,7 +103,6 @@ class FreeTierAgent:
     """Free tier - basic questions from resume only"""
     
     def __init__(self):
-        self.model = genai.GenerativeModel('gemini-1.5-flash')
         self.max_questions = 5
     
     def generate_questions(self, resume_text: str, jd_text: str = None) -> Dict:
@@ -102,14 +147,14 @@ Resume Context:
 {resume_text[:1000]}...  
 """
         
-        response = self.model.generate_content(prompt)
+        model = configure_gemini()
+        response = model.generate_content(prompt)
         return parse_json_response(response.text)
 
 class FreemiumTierAgent:
     """Freemium tier - uses stock industry JDs"""
     
     def __init__(self):
-        self.model = genai.GenerativeModel('gemini-1.5-flash')
         self.max_questions = 10
     
     def generate_questions(self, resume_text: str, jd_text: str) -> Dict:
@@ -175,14 +220,14 @@ Requirements:
 4. Focus on practical application of skills
 """
         
-        response = self.model.generate_content(prompt)
+        model = configure_gemini()
+        response = model.generate_content(prompt)
         return parse_json_response(response.text)
 
 class PremiumTierAgent:
     """Premium tier - uses actual JD and comprehensive questions"""
     
     def __init__(self):
-        self.model = genai.GenerativeModel('gemini-1.5-pro')  # Better model for premium
         self.max_questions = 20
     
     def generate_questions(self, resume_text: str, jd_text: str, company_context: str = None) -> Dict:
@@ -253,7 +298,8 @@ Requirements:
 4. Mix theoretical and practical questions
 """
         
-        response = self.model.generate_content(prompt)
+        model = configure_gemini()
+        response = model.generate_content(prompt)
         return parse_json_response(response.text)
 
 # Simple tier selection function

@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
 import os
-from agents.simple_agents import get_agent
+from agents.agents import get_agent
 
 app = FastAPI(title="Mock Test Service", version="1.0.0")
 

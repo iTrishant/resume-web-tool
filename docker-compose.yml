@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  user-test-service:
+    build: ./user-test-service
+    ports:
+      - "8002:8000"
+    environment:
+      - GEMINI_API_KEY_1=${GEMINI_API_KEY_1}
+      - GEMINI_API_KEY_2=${GEMINI_API_KEY_2}
+      - GEMINI_API_KEY_3=${GEMINI_API_KEY_3}
+      - GEMINI_API_KEY_4=${GEMINI_API_KEY_4}
+      - GEMINI_API_KEY_5=${GEMINI_API_KEY_5}
+    env_file:
+      - .env
+
+  evaluation-service:
+    build: ./evaluation-service
+    ports:
+      - "8001:8000"
+    environment:
+      - GEMINI_API_KEY_1=${GEMINI_API_KEY_1}
+      - GEMINI_API_KEY_2=${GEMINI_API_KEY_2}
+      - GEMINI_API_KEY_3=${GEMINI_API_KEY_3}
+      - GEMINI_API_KEY_4=${GEMINI_API_KEY_4}
+      - GEMINI_API_KEY_5=${GEMINI_API_KEY_5}
+    env_file:
+      - .env
+
+  assessment-service:
+    build: ./assessment-service
+    ports:
+      - "8003:8000"
+    environment:
+      - GEMINI_API_KEY_1=${GEMINI_API_KEY_1}
+      - GEMINI_API_KEY_2=${GEMINI_API_KEY_2}
+      - GEMINI_API_KEY_3=${GEMINI_API_KEY_3}
+      - GEMINI_API_KEY_4=${GEMINI_API_KEY_4}
+      - GEMINI_API_KEY_5=${GEMINI_API_KEY_5}
+    env_file:
+      - .env
