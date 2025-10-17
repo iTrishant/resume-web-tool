@@ -226,7 +226,7 @@ ASSESSMENT CONTEXT:
 - Total Questions: {len(request.questions)}
 
 QUESTIONS AND ANSWERS:
-{chr(10).join([f"{i}. [{q['type'].upper()}] {q['question']}{' Options: ' + ', '.join(q['options']) if q['options'] else ''}\n   Answer: {q['answer']}" for i, q in enumerate(qa_pairs, 1)])}
+{chr(10).join([f"{i}. [{q['type'].upper()}] {q['question']}{' Options: ' + ', '.join(q['options']) if q['options'] else ''}{chr(10)}   Answer: {q['answer']}" for i, q in enumerate(qa_pairs, 1)])}
 
 YOUR TASK:
 Evaluate each answer comprehensively based on the {request.difficulty} difficulty level:
@@ -246,7 +246,8 @@ EVALUATION CRITERIA FOR {request.difficulty.upper()} LEVEL:
 {'- Expect professional-level answers with comprehensive coverage' if request.difficulty == 'actual' else ''}
 {'- Expect expert-level depth with advanced concepts and edge cases' if request.difficulty == 'challenge' else ''}
 
-Be thorough, specific, and constructive in your evaluation. Focus on both strengths and areas for improvement."""
+Be thorough, specific, and constructive in your evaluation. Focus on both strengths and areas for improvement.
+"""
 
         # Call Gemini with structured output
         try:
