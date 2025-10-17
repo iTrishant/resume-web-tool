@@ -1,15 +1,11 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 from typing import List, Optional
 from google import genai
 from dotenv import load_dotenv
 import os
 
-app = FastAPI(
-    title="Technical Assessment Evaluation Service",
-    description="AI-powered evaluation service for technical assessments",
-    version="1.0.0"
-)
+router = APIRouter()
 
 if os.path.exists(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')):
     load_dotenv(dotenv_path=os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
@@ -132,7 +128,7 @@ class EvaluationResponse(BaseModel):
 
 # ==================== API Endpoints ====================
 
-@app.get("/")
+@router.get("/")
 async def root():
     """Root endpoint with API information"""
     return {
@@ -145,12 +141,12 @@ async def root():
         }
     }
 
-@app.get("/health")
+@router.get("/health")
 async def health_check():
     """Health check endpoint"""
     return {"status": "healthy", "message": "Service is running"}
 
-@app.post("/evaluate", response_model=EvaluationResponse)
+@router.post("/evaluate", response_model=EvaluationResponse)
 async def evaluate_assessment(request: EvaluationRequest):
     """
     Evaluate a technical assessment using Gemini AI with structured output.
@@ -246,10 +242,6 @@ Be thorough, specific, and constructive in your evaluation. Focus on both streng
             detail=f"Evaluation failed: {str(e)}"
         )
 
-# ==================== Run the service ====================
-
-if __name__ == "__main__":
-    import uvicorn
-    port = int(os.environ.get("PORT", 8000))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+# ==================== Router Export ====================
+# This module exports the router for mounting in the main FastAPI app
     
