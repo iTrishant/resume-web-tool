@@ -1,5 +1,7 @@
 fastapi
 uvicorn
+requests
+beautifulsoup4
 PyMuPDF
 python-dotenv
 google-generativeai

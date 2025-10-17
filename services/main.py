@@ -43,10 +43,11 @@ async def root():
         "endpoints": {
             "POST /evaluate/evaluate": "Evaluate technical assessments",
             "POST /generate-test/generate-test": "Generate mock test questions",
-            "POST /resume-jd/resume": "Parse resume PDF",
-            "POST /resume-jd/jd": "Parse job description PDF", 
+            "GET /generate-test/config": "Get test configuration options",
+            "POST /resume-jd/parse-and-match": "Parse resume+JD URLs and get match score (single API call)",
+            "POST /resume-jd/resume": "Parse resume from URL",
+            "POST /resume-jd/jd": "Parse job description from URL", 
             "POST /resume-jd/match": "Match resume and JD",
-            "POST /resume-jd/generate": "Generate questions from resume+JD",
             "GET /health": "Health check"
         }
     }

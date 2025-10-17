@@ -5,16 +5,23 @@ from google import genai
 from dotenv import load_dotenv
 import os
 
+load_dotenv()
 router = APIRouter()
 
 if os.path.exists(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')):
     load_dotenv(dotenv_path=os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
 
 # Get API key from environment
-GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY_1', '')
 
 # Initialize Gemini client
-client = genai.Client(api_key=GEMINI_API_KEY)
+if not GEMINI_API_KEY:
+    raise ValueError("GEMINI_API_KEY_1 not found in environment variables")
+
+try:
+    client = genai.Client(api_key=GEMINI_API_KEY)
+except Exception as e:
+    raise ValueError(f"Failed to initialize Gemini client: {str(e)}")
 
 # ==================== Pydantic Models for Request ====================
 
@@ -137,7 +144,8 @@ async def root():
         "status": "running",
         "endpoints": {
             "POST /evaluate": "Evaluate a technical assessment",
-            "GET /health": "Health check endpoint"
+            "GET /health": "Health check endpoint",
+            "GET /test-gemini": "Test Gemini client connection"
         }
     }
 
@@ -145,6 +153,28 @@ async def root():
 async def health_check():
     """Health check endpoint"""
     return {"status": "healthy", "message": "Service is running"}
+
+@router.get("/test-gemini")
+async def test_gemini():
+    """Test Gemini client connection"""
+    try:
+        # Simple test call
+        response = client.models.generate_content(
+            model="gemini-2.0-flash-exp",
+            contents="Say 'Hello, Gemini is working!'",
+            config={"temperature": 0.1}
+        )
+        return {
+            "status": "success",
+            "gemini_response": response.text,
+            "api_key_configured": bool(GEMINI_API_KEY)
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "error": str(e),
+            "api_key_configured": bool(GEMINI_API_KEY)
+        }
 
 @router.post("/evaluate", response_model=EvaluationResponse)
 async def evaluate_assessment(request: EvaluationRequest):
@@ -168,7 +198,7 @@ async def evaluate_assessment(request: EvaluationRequest):
         if not GEMINI_API_KEY:
             raise HTTPException(
                 status_code=500,
-                detail="GEMINI_API_KEY not configured"
+                detail="GEMINI_API_KEY_1 not configured"
             )
         
         # Prepare Q&A data for prompt
@@ -219,18 +249,25 @@ EVALUATION CRITERIA FOR {request.difficulty.upper()} LEVEL:
 Be thorough, specific, and constructive in your evaluation. Focus on both strengths and areas for improvement."""
 
         # Call Gemini with structured output
-        response = client.models.generate_content(
-            model="gemini-2.0-flash-exp",
-            contents=prompt,
-            config={
-                "response_mime_type": "application/json",
-                "response_schema": EvaluationResponse,
-                "temperature": 0.1,
-            }
-        )
-        
-        # Parse the structured response
-        evaluation_result: EvaluationResponse = response.parsed
+        try:
+            response = client.models.generate_content(
+                model="gemini-2.0-flash-exp",
+                contents=prompt,
+                config={
+                    "response_mime_type": "application/json",
+                    "response_schema": EvaluationResponse,
+                    "temperature": 0.1,
+                }
+            )
+            
+            # Parse the structured response
+            evaluation_result: EvaluationResponse = response.parsed
+            
+        except Exception as gemini_error:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Gemini API call failed: {str(gemini_error)}"
+            )
         
         return evaluation_result
         
@@ -244,4 +281,3 @@ Be thorough, specific, and constructive in your evaluation. Focus on both streng
 
 # ==================== Router Export ====================
 # This module exports the router for mounting in the main FastAPI app
-    

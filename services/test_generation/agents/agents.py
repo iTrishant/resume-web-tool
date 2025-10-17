@@ -5,53 +5,17 @@ import google.generativeai as genai
 from typing import Dict, List, Optional
 import random
 import time
+from dotenv import load_dotenv
+load_dotenv()
 
-# Multi-key rotation for rate limiting
-API_KEYS = [
-    os.getenv("GEMINI_API_KEY_1"),
-    os.getenv("GEMINI_API_KEY_2"), 
-    os.getenv("GEMINI_API_KEY_3"),
-    os.getenv("GEMINI_API_KEY_4"),
-    os.getenv("GEMINI_API_KEY_5")
-]
-
-# Filter out None keys
-API_KEYS = [key for key in API_KEYS if key is not None]
-
-if not API_KEYS:
-    raise ValueError("No Gemini API keys found! Set GEMINI_API_KEY_1 through GEMINI_API_KEY_5")
-
-# Rate limiting tracking
-key_usage = {i: {"requests": 0, "last_reset": time.time()} for i in range(len(API_KEYS))}
-RATE_LIMIT = 15  
-RESET_INTERVAL = 60  
-
-def get_available_key():
-    """Get an available API key with rate limiting"""
-    current_time = time.time()
-    
-    # Reset counters if needed
-    for i, usage in key_usage.items():
-        if current_time - usage["last_reset"] >= RESET_INTERVAL:
-            usage["requests"] = 0
-            usage["last_reset"] = current_time
-    
-    # Find available key
-    for i, usage in key_usage.items():
-        if usage["requests"] < RATE_LIMIT:
-            usage["requests"] += 1
-            return API_KEYS[i]
-    
-    # If all keys are rate limited, wait and retry
-    print("All API keys rate limited, waiting...")
-    time.sleep(5)
-    return get_available_key()
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY_2")
+if not GEMINI_API_KEY:
+    raise ValueError("GEMINI_API_KEY_2 is not set in environment variables")
 
 def configure_gemini():
     """Configure Gemini with current available key"""
-    key = get_available_key()
-    genai.configure(api_key=key)
-    return genai.GenerativeModel('gemini-1.5-flash')
+    genai.configure(api_key=GEMINI_API_KEY)
+    return genai.GenerativeModel('gemini-2.5-flash')
 
 # Keywords from your deployed app
 TECH_KEYWORDS = {
@@ -87,6 +51,38 @@ def extract_technical_highlights(resume_text: str) -> List[str]:
             highlights.append(line)
     return highlights[:5]
 
+# Test configuration based on duration
+TEST_CONFIG = {
+    30: {
+        "open_questions": 4,
+        "mcq_questions": 5
+    },
+    60: {
+        "open_questions": 8,
+        "mcq_questions": 10
+    }
+}
+
+# Difficulty level descriptions
+DIFFICULTY_DESCRIPTIONS = {
+    "novice": "Basic concepts, simple explanations expected",
+    "intermediate": "Solid understanding, some depth required",
+    "actual": "Professional level, thorough answers expected",
+    "challenge": "Expert level, deep technical knowledge required"
+}
+
+def get_test_config(duration: int) -> dict:
+    """Get test configuration for given duration"""
+    if duration not in TEST_CONFIG:
+        raise ValueError(f"Invalid duration: {duration}. Use 30 or 60 minutes")
+    return TEST_CONFIG[duration]
+
+def get_difficulty_description(difficulty: str) -> str:
+    """Get difficulty description for given level"""
+    if difficulty not in DIFFICULTY_DESCRIPTIONS:
+        raise ValueError(f"Invalid difficulty: {difficulty}. Use novice, intermediate, actual, or challenge")
+    return DIFFICULTY_DESCRIPTIONS[difficulty]
+
 def parse_json_response(response_text: str) -> Dict:
     """Parse JSON from Gemini response (same logic as your app)"""
     try:
@@ -103,40 +99,58 @@ class FreeTierAgent:
     """Free tier - basic questions from resume only"""
     
     def __init__(self):
-        self.max_questions = 5
+        self.tier = "free"
     
-    def generate_questions(self, resume_text: str, jd_text: str = None) -> Dict:
-        """Generate basic questions (similar to your deployed app logic)"""
+    def generate_questions(self, resume_text: str, jd_text: str = None, duration: int = 30, difficulty: str = "intermediate") -> Dict:
+        """Generate basic questions based on duration and difficulty"""
         highlights = extract_technical_highlights(resume_text)
         highlights_str = "\n".join(f"- {h}" for h in highlights[:3])  # Limit to 3 for free tier
         
+        # Get test configuration
+        config = get_test_config(duration)
+        difficulty_desc = get_difficulty_description(difficulty)
+        
+        open_count = config["open_questions"]
+        mcq_count = config["mcq_questions"]
+        
         prompt = f"""
-You are an expert technical interview coach. Generate 5 basic technical questions for this candidate:
-• 3 simple open-ended questions (for spoken answers) - technical questions from projects/intern/skills
-• 2 basic multiple-choice questions
+You are an expert technical interview coach. Generate technical questions for this candidate:
 
-Each MCQ should have exactly 5 options (a-e).
+TEST CONFIGURATION:
+- Duration: {duration} minutes
+- Open-ended questions: {open_count} 
+- Multiple-choice questions: {mcq_count}
+- Difficulty Level: {difficulty.upper()} - {difficulty_desc}
+
+DIFFICULTY CONTEXT:
+- novice: Basic concepts, simple explanations expected
+- intermediate: Solid understanding, some depth required  
+- actual: Professional level, thorough answers expected
+- challenge: Expert level, deep technical knowledge required
+
+Generate questions appropriate for {difficulty} level difficulty.
 
 Output format (STRICT JSON):
 {{
     "open_questions": [
         "Q1: ",
         "Q2: ", 
-        "Q3: "
+        "Q3: ",
+        "Q4: "{f',\n        "Q5: ",\n        "Q6: ",\n        "Q7: ",\n        "Q8: "' if open_count == 8 else ''}
     ],
     "mcq": [
         {{
-            "question": "Basic concept question",
+            "question": "Technical concept question",
             "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]
         }},
         {{
-            "question": "Simple technical question",
+            "question": "Practical scenario question",
             "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]
-        }}
+        }}{f',\n        {{\n            "question": "Additional question",\n            "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]\n        }},\n        {{\n            "question": "Another question",\n            "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]\n        }},\n        {{\n            "question": "Final question",\n            "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]\n        }}' if mcq_count == 10 else ''}
     ]
 }}
 
-Choose relevant and apt questions based on resume. Stick to fundamental technical concepts.
+Choose relevant and apt questions based on resume. Stick to {difficulty} level technical concepts.
 
 Only return this JSON. No extra text.
 
@@ -155,19 +169,36 @@ class FreemiumTierAgent:
     """Freemium tier - uses stock industry JDs"""
     
     def __init__(self):
-        self.max_questions = 10
+        self.tier = "freemium"
     
-    def generate_questions(self, resume_text: str, jd_text: str) -> Dict:
+    def generate_questions(self, resume_text: str, jd_text: str, duration: int = 30, difficulty: str = "intermediate") -> Dict:
         """Generate questions using stock industry JD"""
         highlights = extract_technical_highlights(resume_text)
         highlights_str = "\n".join(f"- {h}" for h in highlights)
         
+        # Get test configuration
+        config = get_test_config(duration)
+        difficulty_desc = get_difficulty_description(difficulty)
+        
+        open_count = config["open_questions"]
+        mcq_count = config["mcq_questions"]
+        
         prompt = f"""
-You are an expert technical interview coach. Generate 10 questions for this candidate using the provided job description:
-• 5 open-ended technical questions (referencing JD requirements) - mix of JD and resume projects/skills
-• 5 multiple-choice questions
+You are an expert technical interview coach. Generate technical questions for this candidate using the provided job description:
 
-Each MCQ should have exactly 5 options (a-e).
+TEST CONFIGURATION:
+- Duration: {duration} minutes
+- Open-ended questions: {open_count} 
+- Multiple-choice questions: {mcq_count}
+- Difficulty Level: {difficulty.upper()} - {difficulty_desc}
+
+DIFFICULTY CONTEXT:
+- novice: Basic concepts, simple explanations expected
+- intermediate: Solid understanding, some depth required  
+- actual: Professional level, thorough answers expected
+- challenge: Expert level, deep technical knowledge required
+
+Generate questions appropriate for {difficulty} level difficulty, referencing JD requirements.
 
 Output format (STRICT JSON):
 {{
@@ -175,8 +206,7 @@ Output format (STRICT JSON):
         "Q1: JD-specific technical question",
         "Q2: Technical depth question",
         "Q3: Problem-solving question",
-        "Q4: Skill application question",
-        "Q5: Industry-specific scenario question"
+        "Q4: Skill application question"{f',\n        "Q5: Industry-specific scenario question",\n        "Q6: Advanced technical question",\n        "Q7: Complex problem-solving question",\n        "Q8: Expert-level technical question"' if open_count == 8 else ''}
     ],
     "mcq": [
         {{
@@ -196,9 +226,9 @@ Output format (STRICT JSON):
             "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]
         }},
         {{
-            "question": "choose relevant question",
+            "question": "Relevant technical question",
             "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]
-        }}
+        }}{f',\n        {{\n            "question": "Advanced concept question",\n            "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]\n        }},\n        {{\n            "question": "Complex scenario question",\n            "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]\n        }},\n        {{\n            "question": "Expert-level question",\n            "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]\n        }},\n        {{\n            "question": "Specialized knowledge question",\n            "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]\n        }},\n        {{\n            "question": "Final comprehensive question",\n            "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]\n        }}' if mcq_count == 10 else ''}
     ]
 }}
 
@@ -215,7 +245,7 @@ Only return this JSON. No extra text.
 
 Requirements:
 1. Reference specific requirements from the job description
-2. Mix fundamental and intermediate concepts
+2. Generate questions at {difficulty} difficulty level
 3. Include questions about both technical and soft skills mentioned in JD
 4. Focus on practical application of skills
 """
@@ -228,19 +258,36 @@ class PremiumTierAgent:
     """Premium tier - uses actual JD and comprehensive questions"""
     
     def __init__(self):
-        self.max_questions = 20
+        self.tier = "premium"
     
-    def generate_questions(self, resume_text: str, jd_text: str, company_context: str = None) -> Dict:
-        """Generate comprehensive questions using actual JD (same style as your deployed app)"""
+    def generate_questions(self, resume_text: str, jd_text: str, company_context: str = None, duration: int = 30, difficulty: str = "intermediate") -> Dict:
+        """Generate comprehensive questions using actual JD"""
         highlights = extract_technical_highlights(resume_text)
         highlights_str = "\n".join(f"- {h}" for h in highlights)
         
+        # Get test configuration
+        config = get_test_config(duration)
+        difficulty_desc = get_difficulty_description(difficulty)
+        
+        open_count = config["open_questions"]
+        mcq_count = config["mcq_questions"]
+        
         prompt = f"""
-You are an expert technical interview coach. Given this resume and job description, generate 20 comprehensive questions:
-• 5 open-ended technical questions (referencing specific JD requirements)
-• 5 multiple-choice questions (advanced concepts)
+You are an expert technical interview coach. Generate comprehensive technical questions for this candidate using the provided job description:
 
-Each MCQ should have exactly 5 options (a-e).
+TEST CONFIGURATION:
+- Duration: {duration} minutes
+- Open-ended questions: {open_count} 
+- Multiple-choice questions: {mcq_count}
+- Difficulty Level: {difficulty.upper()} - {difficulty_desc}
+
+DIFFICULTY CONTEXT:
+- novice: Basic concepts, simple explanations expected
+- intermediate: Solid understanding, some depth required  
+- actual: Professional level, thorough answers expected
+- challenge: Expert level, deep technical knowledge required
+
+Generate questions appropriate for {difficulty} level difficulty, referencing specific JD requirements.
 
 Output format (STRICT JSON):
 {{
@@ -248,8 +295,7 @@ Output format (STRICT JSON):
         "Q1: ",
         "Q2: ",
         "Q3: ",
-        "Q4: ",
-        "Q5: "
+        "Q4: "{f',\n        "Q5: ",\n        "Q6: ",\n        "Q7: ",\n        "Q8: "' if open_count == 8 else ''}
     ],
     "mcq": [
         {{
@@ -271,11 +317,11 @@ Output format (STRICT JSON):
         {{
             "question": "",
             "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]
-        }}
+        }}{f',\n        {{\n            "question": "",\n            "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]\n        }},\n        {{\n            "question": "",\n            "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]\n        }},\n        {{\n            "question": "",\n            "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]\n        }},\n        {{\n            "question": "",\n            "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]\n        }},\n        {{\n            "question": "",\n            "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]\n        }}' if mcq_count == 10 else ''}
     ]
 }}
 
-Choose relevant and apt questions based on JD and resume. Make questions progressively difficult from intermediate to expert level, and stick to technical topics.
+Choose relevant and apt questions based on JD and resume. Make questions progressively difficult from intermediate to expert level, and stick to technical topics appropriate for {difficulty} level.
 
 Only return this JSON. No extra text.
 
@@ -293,7 +339,7 @@ Company Context:
 
 Requirements:
 1. Reference specific JD requirements in questions
-2. Progressive difficulty from intermediate to expert
+2. Generate questions at {difficulty} difficulty level
 3. Include both depth and breadth of knowledge
 4. Mix theoretical and practical questions
 """
