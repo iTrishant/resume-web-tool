@@ -23,8 +23,8 @@ if not API_KEYS:
 
 # Rate limiting tracking
 key_usage = {i: {"requests": 0, "last_reset": time.time()} for i in range(len(API_KEYS))}
-RATE_LIMIT = 15  # requests per minute
-RESET_INTERVAL = 60  # seconds
+RATE_LIMIT = 15  
+RESET_INTERVAL = 60  
 
 def get_available_key():
     """Get an available API key with rate limiting"""
