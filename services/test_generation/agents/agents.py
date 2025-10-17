@@ -136,7 +136,7 @@ Output format (STRICT JSON):
         "Q1: ",
         "Q2: ", 
         "Q3: ",
-        "Q4: "{f',\n        "Q5: ",\n        "Q6: ",\n        "Q7: ",\n        "Q8: "' if open_count == 8 else ''}
+        "Q4: "{f',chr(10)        "Q5: ",chr(10)        "Q6: ",chr(10)        "Q7: ",chr(10)        "Q8: "' if open_count == 8 else ''}
     ],
     "mcq": [
         {{
@@ -146,7 +146,7 @@ Output format (STRICT JSON):
         {{
             "question": "Practical scenario question",
             "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]
-        }}{f',\n        {{\n            "question": "Additional question",\n            "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]\n        }},\n        {{\n            "question": "Another question",\n            "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]\n        }},\n        {{\n            "question": "Final question",\n            "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]\n        }}' if mcq_count == 10 else ''}
+        }}{f',chr(10)        {{chr(10)            "question": "Additional question",chr(10)            "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]chr(10)        }},chr(10)        {{chr(10)            "question": "Another question",chr(10)            "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]chr(10)        }},chr(10)        {{chr(10)            "question": "Final question",chr(10)            "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]chr(10)        }}' if mcq_count == 10 else ''}
     ]
 }}
 
@@ -206,7 +206,7 @@ Output format (STRICT JSON):
         "Q1: JD-specific technical question",
         "Q2: Technical depth question",
         "Q3: Problem-solving question",
-        "Q4: Skill application question"{f',\n        "Q5: Industry-specific scenario question",\n        "Q6: Advanced technical question",\n        "Q7: Complex problem-solving question",\n        "Q8: Expert-level technical question"' if open_count == 8 else ''}
+        "Q4: Skill application question"{f',chr(10)        "Q5: Industry-specific scenario question",chr(10)        "Q6: Advanced technical question",chr(10)        "Q7: Complex problem-solving question",chr(10)        "Q8: Expert-level technical question"' if open_count == 8 else ''}
     ],
     "mcq": [
         {{
@@ -228,7 +228,7 @@ Output format (STRICT JSON):
         {{
             "question": "Relevant technical question",
             "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]
-        }}{f',\n        {{\n            "question": "Advanced concept question",\n            "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]\n        }},\n        {{\n            "question": "Complex scenario question",\n            "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]\n        }},\n        {{\n            "question": "Expert-level question",\n            "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]\n        }},\n        {{\n            "question": "Specialized knowledge question",\n            "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]\n        }},\n        {{\n            "question": "Final comprehensive question",\n            "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]\n        }}' if mcq_count == 10 else ''}
+        }}{f',chr(10)        {{chr(10)            "question": "Advanced concept question",chr(10)            "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]chr(10)        }},chr(10)        {{chr(10)            "question": "Complex scenario question",chr(10)            "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]chr(10)        }},chr(10)        {{chr(10)            "question": "Expert-level question",chr(10)            "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]chr(10)        }},chr(10)        {{chr(10)            "question": "Specialized knowledge question",chr(10)            "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]chr(10)        }},chr(10)        {{chr(10)            "question": "Final comprehensive question",chr(10)            "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]chr(10)        }}' if mcq_count == 10 else ''}
     ]
 }}
 
@@ -295,7 +295,7 @@ Output format (STRICT JSON):
         "Q1: ",
         "Q2: ",
         "Q3: ",
-        "Q4: "{f',\n        "Q5: ",\n        "Q6: ",\n        "Q7: ",\n        "Q8: "' if open_count == 8 else ''}
+        "Q4: "{f',chr(10)        "Q5: ",chr(10)        "Q6: ",chr(10)        "Q7: ",chr(10)        "Q8: "' if open_count == 8 else ''}
     ],
     "mcq": [
         {{
@@ -317,7 +317,7 @@ Output format (STRICT JSON):
         {{
             "question": "",
             "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]
-        }}{f',\n        {{\n            "question": "",\n            "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]\n        }},\n        {{\n            "question": "",\n            "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]\n        }},\n        {{\n            "question": "",\n            "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]\n        }},\n        {{\n            "question": "",\n            "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]\n        }},\n        {{\n            "question": "",\n            "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]\n        }}' if mcq_count == 10 else ''}
+        }}{f',chr(10)        {{chr(10)            "question": "",chr(10)            "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]chr(10)        }},chr(10)        {{chr(10)            "question": "",chr(10)            "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]chr(10)        }},chr(10)        {{chr(10)            "question": "",chr(10)            "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]chr(10)        }},chr(10)        {{chr(10)            "question": "",chr(10)            "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]chr(10)        }},chr(10)        {{chr(10)            "question": "",chr(10)            "options": ["a. option1", "b. option2", "c. option3", "d. option4", "e. option5"]chr(10)        }}' if mcq_count == 10 else ''}
     ]
 }}
 
