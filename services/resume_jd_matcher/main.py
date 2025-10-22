@@ -16,20 +16,24 @@ class MatchRequest(BaseModel):
 
 class URLRequest(BaseModel):
     url: str
+    
+class ParseAndMatchRequest(BaseModel):
+    resume_url: str
+    jd_url: str
 
 @router.get("/")
 def home():
     return {"status": "service running"}
 
 @router.post("/parse-and-match")
-async def parse_and_match_urls(resume_url: str, jd_url: str):
+async def parse_and_match_urls(request: ParseAndMatchRequest):
     """
     Parse resume and JD from URLs and calculate match percentage in a single API call
     """
     try:
         # Fetch content from URLs
-        resume_text = fetch_content_from_url(resume_url)
-        jd_text = fetch_content_from_url(jd_url)
+        resume_text = fetch_content_from_url(request.resume_url)
+        jd_text = fetch_content_from_url(request.jd_url)
         
         # Single API call to parse both and calculate match
         result = parse_and_match_resume_jd(resume_text, jd_text)
