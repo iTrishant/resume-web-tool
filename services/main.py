@@ -24,9 +24,9 @@ app.add_middleware(
 )
 
 # Mount routers with prefixes
-app.include_router(evaluation_router, prefix="/evaluate", tags=["evaluation"])
-app.include_router(test_generation_router, prefix="/generate-test", tags=["test-generation"])
-app.include_router(resume_jd_matcher_router, prefix="/resume-jd", tags=["resume-jd-matcher"])
+app.include_router(evaluation_router, prefix="", tags=["evaluation"])
+app.include_router(test_generation_router, prefix="", tags=["test-generation"])
+app.include_router(resume_jd_matcher_router, prefix="", tags=["resume-jd-matcher"])
 
 @app.get("/health")
 async def health_check():

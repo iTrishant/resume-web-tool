@@ -20,9 +20,10 @@ def fetch_content_from_url(url: str) -> str:
         raise HTTPException(status_code=400, detail=f"Failed to fetch content from URL: {str(e)}")
 
 class MockTestRequest(BaseModel):
-    tier: str  # "free", "freemium", "premium"
+    tier: str="free"  # "free", "freemium", "premium"
     resume_text: Optional[str] = None  # Text content
     resume_url: Optional[str] = None  # URL to fetch resume content
+    job_description: Optional[str] = None # frontend hardcoded job description
     jd_text: Optional[str] = None  # Text content for freemium and premium
     jd_url: Optional[str] = None  # URL to fetch JD content
     company_context: Optional[str] = None  # Only used by premium
@@ -66,7 +67,9 @@ def generate_mock_test(request: MockTestRequest):
         # Get JD content (for freemium and premium tiers)
         jd_content = None
         if request.tier in ["freemium", "premium"]:
-            if request.jd_text:
+            if request.job_description:  # Add this - prioritize job_description from frontend
+                jd_content = request.job_description
+            elif request.jd_text:
                 jd_content = request.jd_text
             elif request.jd_url:
                 jd_content = fetch_content_from_url(request.jd_url)
