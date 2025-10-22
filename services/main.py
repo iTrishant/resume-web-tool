@@ -41,8 +41,8 @@ async def root():
         "version": "1.0.0",
         "status": "running",
         "endpoints": {
-            "POST /evaluate/evaluate": "Evaluate technical assessments",
-            "POST /generate-test/generate-test": "Generate mock test questions",
+            "POST /evaluate": "Evaluate technical assessments",
+            "POST /generate-test": "Generate mock test questions",
             "GET /generate-test/config": "Get test configuration options",
             "POST /resume-jd/parse-and-match": "Parse resume+JD URLs and get match score (single API call)",
             "POST /resume-jd/resume": "Parse resume from URL",
