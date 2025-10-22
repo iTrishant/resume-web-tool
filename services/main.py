@@ -24,9 +24,9 @@ app.add_middleware(
 )
 
 # Mount routers with prefixes
-app.include_router(evaluation_router, prefix="", tags=["evaluation"])
-app.include_router(test_generation_router, prefix="", tags=["test-generation"])
-app.include_router(resume_jd_matcher_router, prefix="", tags=["resume-jd-matcher"])
+app.include_router(evaluation_router, prefix="/evaluate", tags=["evaluation"])
+app.include_router(test_generation_router, prefix="/generate-test", tags=["test-generation"])
+app.include_router(resume_jd_matcher_router, prefix="/resume-jd", tags=["resume-jd-matcher"])
 
 @app.get("/health")
 async def health_check():
@@ -34,6 +34,7 @@ async def health_check():
     return {"status": "healthy"}
 
 @app.get("/")
+@app.head("/")
 async def root():
     """Root endpoint with service information"""
     return {
@@ -41,8 +42,8 @@ async def root():
         "version": "1.0.0",
         "status": "running",
         "endpoints": {
-            "POST /evaluate": "Evaluate technical assessments",
-            "POST /generate-test": "Generate mock test questions",
+            "POST /evaluate/evaluate": "Evaluate technical assessments",
+            "POST /generate-test/generate-test": "Generate mock test questions",
             "GET /generate-test/config": "Get test configuration options",
             "POST /resume-jd/parse-and-match": "Parse resume+JD URLs and get match score (single API call)",
             "POST /resume-jd/resume": "Parse resume from URL",
