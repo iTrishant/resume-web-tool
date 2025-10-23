@@ -4,6 +4,7 @@ from typing import List, Optional
 from google import genai
 from dotenv import load_dotenv
 import os
+import copy
 
 load_dotenv()
 router = APIRouter()
@@ -35,7 +36,7 @@ class Answer(BaseModel):
 
 class EvaluationRequest(BaseModel):
     questions: List[Question] = Field(..., description="List of questions")
-    answers: List[Answer] = Field(..., description="List of answers")
+    answers: List[str] = Field(..., description="List of answers")
     difficulty: str = Field(default="intermediate", description="Difficulty level: novice/intermediate/actual/challenge")
     test_duration: int = Field(default=900, description="Allowed time in seconds")
     attempt_duration: int = Field(default=850, description="Actual time taken in seconds")
@@ -133,6 +134,27 @@ class EvaluationResponse(BaseModel):
     analytics: Analytics
     recommendations: Recommendations
 
+def remove_titles_from_schema(schema: dict) -> dict:
+    """
+    Recursively removes 'title' keys from a JSON schema dictionary.
+    The Google AI API for structured output does not support the 'title' parameter.
+    """
+    if isinstance(schema, dict):
+        # Remove 'title' key if it exists at the current level
+        schema.pop('title', None)
+        
+        # Iterate over a copy of items to allow modification
+        for key, value in list(schema.items()):
+            if isinstance(value, dict):
+                # Recurse into nested dictionaries (like 'properties', 'items', '$defs')
+                remove_titles_from_schema(value)
+            elif isinstance(value, list):
+                # Recurse into items in a list (e.g., in 'anyOf', 'allOf', 'oneOf')
+                for item in value:
+                    if isinstance(item, dict):
+                        remove_titles_from_schema(item)
+    return schema
+
 # ==================== API Endpoints ====================
 
 @router.get("/")
@@ -176,6 +198,53 @@ async def test_gemini():
             "api_key_configured": bool(GEMINI_API_KEY)
         }
 
+def get_dereferenced_schema(model) -> dict:
+    """
+    Generates a JSON schema from a Pydantic model and resolves all $ref
+    definitions inline. The Gemini API does not support $ref.
+    """
+    # Get the schema with $defs
+    schema = model.model_json_schema()
+    
+    if "$defs" not in schema:
+        # No definitions to resolve
+        return schema
+
+    # Pop the definitions out for lookup
+    defs = schema.pop("$defs")
+
+    def _resolve_refs(obj):
+        """Recursively finds and replaces $ref with the actual definition."""
+        if "title" in obj:
+            del obj["title"]
+        if isinstance(obj, dict):
+            if "$ref" in obj:
+                ref_path = obj["$ref"]
+                # Get the definition name (e.g., "#/$defs/MyModel" -> "MyModel")
+                ref_name = ref_path.split('/')[-1]
+                
+                if ref_name in defs:
+                    # Get the actual definition
+                    # Use deepcopy to handle multiple uses of the same ref
+                    ref_value = copy.deepcopy(defs[ref_name])
+                    # Recursively resolve refs *within* the definition itself
+                    return _resolve_refs(ref_value)
+                else:
+                    # Can't find ref, return as is
+                    return obj
+            else:
+                # It's a dict, but not a ref itself. Traverse its values.
+                return {k: _resolve_refs(v) for k, v in obj.items()}
+        elif isinstance(obj, list):
+            # Traverse the list
+            return [_resolve_refs(item) for item in obj]
+        else:
+            # Base case: string, int, etc.
+            return obj
+
+    # Start resolving from the top-level schema
+    return _resolve_refs(schema)
+
 @router.post("/evaluate", response_model=EvaluationResponse)
 async def evaluate_assessment(request: EvaluationRequest):
     """
@@ -209,7 +278,7 @@ async def evaluate_assessment(request: EvaluationRequest):
                 "type": q.type,
                 "question": q.text,
                 "options": q.options if q.options else [],
-                "answer": a.answer
+                "answer": a
             })
         
         # Construct evaluation prompt
@@ -248,7 +317,7 @@ EVALUATION CRITERIA FOR {request.difficulty.upper()} LEVEL:
 
 Be thorough, specific, and constructive in your evaluation. Focus on both strengths and areas for improvement.
 """
-
+        print("pachu",EvaluationResponse.model_json_schema())
         # Call Gemini with structured output
         try:
             response = client.models.generate_content(
@@ -256,10 +325,10 @@ Be thorough, specific, and constructive in your evaluation. Focus on both streng
                 contents=prompt,
                 config={
                     "response_mime_type": "application/json",
-                    "response_schema": EvaluationResponse,
+                    "response_schema": get_dereferenced_schema(EvaluationResponse),
                     "temperature": 0.1,
                 }
-            )
+            )   
             
             # Parse the structured response
             evaluation_result: EvaluationResponse = response.parsed
