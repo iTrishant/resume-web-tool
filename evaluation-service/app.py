@@ -13,16 +13,14 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 API_KEYS = [
     os.getenv("GEMINI_API_KEY_1"),
     os.getenv("GEMINI_API_KEY_2"), 
-    os.getenv("GEMINI_API_KEY_3"),
-    os.getenv("GEMINI_API_KEY_4"),
-    os.getenv("GEMINI_API_KEY_5")
+    os.getenv("GEMINI_API_KEY_3")
 ]
 
 # Filter out None keys
 API_KEYS = [key for key in API_KEYS if key is not None]
 
 if not API_KEYS:
-    raise ValueError("No Gemini API keys found! Set GEMINI_API_KEY_1 through GEMINI_API_KEY_5")
+    raise ValueError("No Gemini API keys found! Set GEMINI_API_KEY_1 through GEMINI_API_KEY_3 in your environment variables.")
 
 # Rate limiting tracking
 key_usage = {i: {"requests": 0, "last_reset": time.time()} for i in range(len(API_KEYS))}
